@@ -1,0 +1,142 @@
+---
+title: "DS Project Stats"
+author: "Carys Hughes"
+date: "10/11/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(FSA) 
+library(fGarch)
+library(LambertW)
+library(patchwork)
+library(here)
+library(tidyverse)
+```
+
+```{r}
+lorazepam = read_csv(here("./Data/DS copepod data - Lorazepam acute.csv")) %>%
+    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+DPH_acute = read_csv(here("./Data/DS copepod data - DPH acute_right one.csv")) %>%
+    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+
+DPH_chronic = read_csv(here("./Data/DS copepod data - DPH chronic.csv")) %>%
+    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+```
+
+```{r}
+lorazepam_treatment.mod <- lm(proportion ~ treatment, data = lorazepam)
+summary(lorazepam_treatment.mod)
+
+acute_DPH.mod <- lm(proportion ~ treatment, data = DPH_acute)
+summary(acute_DPH.mod)
+
+DPH_chronic.mod <- lm(proportion ~ treatment, data = DPH_chronic)
+summary(DPH_chronic.mod)
+```
+
+```{r}
+ggplot(lorazepam, aes(x = proportion, y = time_min)) + 
+  geom_point() + 
+  xlab("Proportion of copepods") +
+  ylab("Time (min)") +
+  theme_classic()
+
+boxplot(proportion~time_min, data=lorazepam,
+   xlab="Time (min)", ylab="Proportion of copepods")
+
+ggplot(lorazepam, aes(x = proportion, y = treatment)) + 
+  geom_point() + 
+  xlab("Proportion of copepods") +
+  ylab("Treatment)") +
+  theme_classic()
+
+boxplot(proportion~treatment,data=lorazepam,
+   xlab="Treatment", ylab="Proportion of copepods")
+```
+
+```{r}
+boxplot(proportion~treatment,data=DPH_chronic,
+   xlab="Treatment", ylab="Number of copepods")
+
+boxplot(proportion~treatment,data=DPH_acute,
+   xlab="Treatment", ylab="Number of copepods")
+```
+
+```{r}
+shapiro.test(DPH_chronic$proportion) #p-value < 2.2e-16 (violates assumption)
+bartlett.test(proportion ~ treatment, data = DPH_chronic) #p-value < 2.2e-16 (violates)
+
+kruskal.test(proportion ~ treatment, data = DPH_chronic) #p-value = 0.0006316
+dunnTest(proportion ~ treatment, data = DPH_chronic) 
+```
+
+```{r}
+shapiro.test(DPH_acute$proportion) #p-value = 1.958e-07 (violates assumption)
+bartlett.test(proportion ~ treatment, data = DPH_acute) #p-value = 6.849e-06 (violates
+
+kruskal.test(proportion ~ treatment, data = DPH_acute) #p-value = 0.0006316
+dunnTest(proportion ~ treatment, data = DPH_acute)
+```
+
+```{r}
+shapiro.test(lorazepam$proportion) # p-value = 4.922e-15, <0.05 therfore data is significantly different from the normal distribution
+bartlett.test(proportion ~ treatment, data = lorazepam) #p-value = 0.03296, equal variences
+```
+```{r}
+kruskal.test(proportion ~ treatment, data = lorazepam) #p-value = 0.4573
+dunnTest(proportion ~ treatment, data = lorazepam) 
+```
+
+```{r}
+library(fitdistrplus)
+library(gamlss)
+library(tidyverse)
+```
+
+```{r}
+descdist(DPH_chronic$proportion)
+```
+```{r}
+fit.gamma <- fitdist(DPH_chronic$proportion, "gamma")
+fit.beta <- fitdist(DPH_chronic$proportion, "beta")
+plot(fit.gamma)
+plot(fit.beta)
+```
+
+```{r}
+mGA <- histDist(DPH_chronic$proportion, "GA", density = T, main = "Gamma")
+mBE <- histDist(DPH_chronic$proportion, "BE", density = T, main = "Beta")
+```
+
+```{r}
+GAIC(mGA, mBE)
+```
+```{r}
+chronic_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = DPH_chronic) 
+
+chronic.mod <- gamlss(proportion ~ treatment + time_min + treatment:time_min, family = GA(), data = DPH_chronic)
+
+backward.chronic <- stepGAIC(chronic.mod, direction = "backward", trace = F)
+
+formula(backward.chronic) # get the final formula , proportion ~ treatment +time_min
+backward.chronic$anova 
+summary(backward.chronic) 
+```
+
+```{r}
+acute_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = DPH_acute) 
+
+acute.mod <- gamlss(proportion ~ treatment + time_min + treatment:time_min, family = GA(), data = DPH_acute)
+
+backward.acute <- stepGAIC(chronic.mod, direction = "backward", trace = F)
+
+formula(backward.acute) # get the final formula , proportion ~ treatment + time_min
+backward.acute$anova 
+summary(backward.acute) 
+```
+

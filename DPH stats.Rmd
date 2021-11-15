@@ -24,7 +24,8 @@ library(here)
 # 0-25 percentile
 
 ```{r}
-DPH_acute = read.csv(here("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/Data/DPH acute.csv"))
+DPH_acute = read_csv(here("./Data/DS copepod data - DPH acute_right one.csv")) %>%
+    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
 ```
 
 

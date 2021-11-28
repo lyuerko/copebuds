@@ -19,21 +19,15 @@ library(tidyverse)
 ```
 
 ```{r}
-<<<<<<< HEAD
 lorazepam = read_csv(here("./Data/DS copepod data - Lorazepam acute.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
-DPH_acute = read_csv(here("./Data/DS copepod data - DPH acute_right one.csv")) %>%
-    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
-=======
+
 DPH_acute = read_csv(here("./Data/DS copepod data - DPH acute_right one.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
 
->>>>>>> 3124f935451fd8bf0af7b1779fc6e7fd79bcfd94
 DPH_chronic = read_csv(here("./Data/DS copepod data - DPH chronic.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
 ```
-
-
 
 ```{r}
 lorazepam_treatment.mod <- lm(proportion ~ treatment, data = lorazepam)
@@ -192,48 +186,3 @@ histDist(lorazepam$proportion, "SHASH", density = T)
 lo.mod <- gamlss(proportion ~ treatment + time_min + treatment:time_min, family = SHASH(), data = lorazepam, method = CG())
 summary(lo.mod)
 ```
-
-```{r}
-descdist(DPH_chronic$proportion)
-
-fit.gamma <- fitdist(DPH_chronic$proportion, "gamma")
-fit.beta <- fitdist(DPH_chronic$proportion, "beta")
-plot(fit.gamma)
-plot(fit.beta)
-
-mGA <- histDist(DPH_chronic$proportion, "GA", density = T, main = "Gamma")
-mBE <- histDist(DPH_chronic$proportion, "BE", density = T, main = "Beta")
-GAIC(mGA, mBE)
-
-chronic_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = DPH_chronic) 
-summary(chronic_mod)
-
-backward.chronic <- stepGAIC(chronic_mod, direction = "backward", trace = F)
-
-formula(backward.chronic) # get the final formula , proportion ~ treatment +time_min
-backward.chronic$anova 
-summary(backward.chronic) 
-```
-
-```{r}
-descdist(DPH_acute$proportion)
-
-fit.gamma <- fitdist(DPH_acute$proportion, "gamma")
-fit.beta <- fitdist(DPH_acute$proportion, "beta")
-plot(fit.gamma)
-plot(fit.beta)
-
-mGA <- histDist(DPH_acute$proportion, "GA", density = T, main = "Gamma")
-mBE <- histDist(DPH_acute$proportion, "BE", density = T, main = "Beta")
-GAIC(mGA, mBE)
-
-acute_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = DPH_acute) 
-
-backward.acute <- stepGAIC(acute_mod, direction = "backward", trace = F)
-
-formula(backward.acute) # get the final formula , proportion ~ treatment + time_min
-backward.acute$anova 
-summary(backward.acute) 
-```
-
-

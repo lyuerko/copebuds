@@ -26,14 +26,29 @@ library(patchwork)
 ```
 # loading the cvs files
 
+Backup
 ```{r}
-lorazepam = read_csv(here("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/Lorazepam acute.csv")) %>%
+#lorazepam = read_csv(here("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/Lorazepam acute.csv")) %>%
+#    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+#DPH_acute = read_csv(here("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/DPH acute.csv")) %>%
+  #  mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+
+#DPH_chronic <- read_delim("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/DPH chronic.csv", delim = ',') %>%
+ #   mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+
+```
+Backup
+
+```{r}
+lorazepam = read_csv(here("./Data/ DS copepod data - Lorazepam acute.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
 DPH_acute = read_csv(here("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/DPH acute.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
 
 DPH_chronic <- read_delim("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/DPH chronic.csv", delim = ',') %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+
+
 ```
       _______________________________
 # DPH acute graphs

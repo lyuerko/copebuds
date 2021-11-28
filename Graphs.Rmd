@@ -33,6 +33,7 @@ DPH_acute = read_csv(here("./Data/DS copepod data - DPH acute_right one.csv")) %
 
 DPH_chronic = read_csv(here("./Data/DS copepod data - DPH chronic.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
+
 ```
       _______________________________
 # DPH acute graphs
@@ -42,7 +43,6 @@ DPH_chronic = read_csv(here("./Data/DS copepod data - DPH chronic.csv")) %>%
 DPH_acute_0_50 <- DPH_acute %>%
   filter(percentile == "0-25" | percentile == "25-50") %>%
   group_by(time_min, treatment, replicate_number) %>%
-  mutate(proportion_light = sum(proportion))
   summarize(proportion_light = sum(proportion))
 ```
 
@@ -50,11 +50,10 @@ DPH_acute_0_50 <- DPH_acute %>%
 ```{r}
 ggplot(DPH_acute_0_50, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment,
-                           fill=treatment)) +
-  geom_point() +
+                           colour = treatment)) +
+  geom_boxplot() +
+  geom_smooth() +
   theme_classic()+
-  geom_smooth(method="glm") +
   xlab ("time(min)") +
   ylab ("copepod proportion")
 ```
@@ -66,18 +65,17 @@ ggplot(DPH_acute_0_50, aes(x = time_min,
 DPH_acute_50_100 <- DPH_acute %>%
   filter(percentile == "50-75" | percentile == "75-100") %>%
   group_by(time_min, treatment, replicate_number) %>%
-  mutate(proportion_light = sum(proportion))
+  summarize(proportion_light = sum(proportion))
 ```
 
 
 ```{r}
 ggplot(DPH_acute_50_100, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment,
-                           fill=treatment)) +
-  geom_point() +
+                           colour = treatment)) +
+  geom_boxplot() +
+  geom_smooth() +
   theme_classic()+
-  geom_smooth(method="glm") +
   xlab ("time(min)") +
   ylab ("copepod proportion")
 ```
@@ -98,42 +96,42 @@ ________________________________________________________________________________
 ## 0-50 proportion
 
 ```{r}
-DPH_chronic_0_50 <- DPH_chronic %>%
+DPH_chronic_0_50 <- DPH_acute %>%
   filter(percentile == "0-25" | percentile == "25-50") %>%
   group_by(time_min, treatment, replicate_number) %>%
-  mutate(proportion_light = sum(proportion))
+  summarize(proportion_light = sum(proportion))
 ```
 
 
 ```{r}
 ggplot(DPH_chronic_0_50, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment,
-                           fill=treatment)) +
-  geom_point() +
+                           colour = treatment)) +
+  geom_boxplot() +
+  geom_smooth() +
   theme_classic()+
-  geom_smooth(method="glm") +
   xlab ("time(min)") +
   ylab ("copepod proportion")
 ```
+
 ## 50-100 proportion
 
 ```{r}
 DPH_chronic_50_100 <- DPH_chronic %>%
   filter(percentile == "50-75" | percentile == "75-100") %>%
   group_by(time_min, treatment, replicate_number) %>%
-  mutate(proportion_light = sum(proportion))
+  summarize(proportion_light = sum(proportion))
 ```
 
 
 ```{r}
 ggplot(DPH_chronic_50_100, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment,
-                           fill=treatment)) +
-  geom_point() +
+                           colour = treatment)) +
+  scale_colour_manual(values = c('#440154FF', '#4AC16DFF', '#FEBA80FF')) +
+  geom_boxplot() +
+  geom_smooth() +
   theme_classic()+
-  geom_smooth(method="glm") +
   xlab ("time(min)") +
   ylab ("copepod proportion")
 ```
@@ -148,18 +146,17 @@ ggplot(DPH_chronic_50_100, aes(x = time_min,
 lorazepam_acute_0_50 <- lorazepam %>%
   filter(percentile == "0-25" | percentile == "25-50") %>%
   group_by(time_min, treatment, replicate_number) %>%
-  mutate(proportion_light = sum(proportion))
+  summarize(proportion_light = sum(proportion))
 ```
 
 
 ```{r}
 ggplot(lorazepam_acute_0_50, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment,
-                           fill=treatment)) +
-  geom_point() +
+                           colour = treatment)) +
+  geom_boxplot() +
+  geom_smooth() +
   theme_classic()+
-  geom_smooth(method="glm") +
   xlab ("time(min)") +
   ylab ("copepod proportion")
 ```
@@ -169,18 +166,17 @@ ggplot(lorazepam_acute_0_50, aes(x = time_min,
 lorazepam_acute_50_100 <- lorazepam %>%
   filter(percentile == "50-75" | percentile == "75-100") %>%
   group_by(time_min, treatment, replicate_number) %>%
-  mutate(proportion_light = sum(proportion))
+  summarize(proportion_light = sum(proportion))
 ```
 
 
 ```{r}
 ggplot(lorazepam_acute_50_100, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment,
-                           fill=treatment)) +
-  geom_point() +
+                           colour = treatment)) +
+  geom_boxplot() +
+  geom_smooth() +
   theme_classic()+
-  geom_smooth(method="glm") +
   xlab ("time(min)") +
   ylab ("copepod proportion")
 ```

@@ -202,9 +202,7 @@ GAIC(mGA, mBE)
 chronic_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = DPH_chronic) 
 summary(chronic_mod)
 
-chronic.mod <- gamlss(proportion ~ treatment + time_min + treatment:time_min, family = GA(), data = DPH_chronic)
-
-backward.chronic <- stepGAIC(chronic.mod, direction = "backward", trace = F)
+backward.chronic <- stepGAIC(chronic_mod, direction = "backward", trace = F)
 
 formula(backward.chronic) # get the final formula , proportion ~ treatment +time_min
 backward.chronic$anova 
@@ -225,9 +223,7 @@ GAIC(mGA, mBE)
 
 acute_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = DPH_acute) 
 
-acute.mod <- gamlss(proportion ~ treatment + time_min + treatment:time_min, family = GA(), data = DPH_acute)
-
-backward.acute <- stepGAIC(chronic.mod, direction = "backward", trace = F)
+backward.acute <- stepGAIC(acute_mod, direction = "backward", trace = F)
 
 formula(backward.acute) # get the final formula , proportion ~ treatment + time_min
 backward.acute$anova 

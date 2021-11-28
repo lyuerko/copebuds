@@ -86,15 +86,24 @@ ggplot(DPH_chronic, aes(x = time_min, y = proportion, fill = treatment), xlab="T
   theme_classic() +
   labs(x = "Time (min)", y = "Proportion of copepods") +   
   labs(fill = "Treatment") +
-  scale_fill_discrete(name = "Treatment", labels = c("Control", "Environmentally relevant", "High"))
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 
 ggplot(DPH_acute, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
   geom_boxplot(alpha = 0.8) +
   theme_classic() +
   labs(x = "Time (min)", y = "Proportion of copepods") +  
   labs(fill = "Treatment") +
-  scale_fill_discrete(name = "Treatment", labels = c("Control", "Environmentally relevant", "High"))
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 
+ggplot(lorazepam, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 ```
 
 ```{r}
@@ -171,24 +180,11 @@ summary(backward.acute)
 ```
 
 ```{r}
-descdist(lorazepam$proportion)
-
-fit.beta <- fitdist(lorazepam$proportion, "gamma")
-fit.beta <- fitdist(lorazepam$proportion, "beta")
-plot(fit.gamma)
-plot(fit.beta)
-
-mGA <- histDist(lorazepam$proportion, "GA", density = T, main = "Gamma")
-mBE <- histDist(lorazepam$proportion, "BE", density = T, main = "Beta")
-GAIC(mGA, mBE)
-
-lorazepam_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = lorazepam) 
-
-backward.lorazepam <- stepGAIC(lorazepam_mod, direction = "backward", trace = F)
-
-formula(backward.lorazepam) # get the final formula , proportion ~ treatment + time_min
-backward.lorazepam$anova 
-summary(backward.lorazepam) 
+# automatic distribution fitting with fitDist
+fitDist(proportion, data = lorazepam, type = "realAll", try.gamlss = T) # SHASH distribution 
+histDist(lorazepam$proportion, "SHASH", density = T)
+lo.mod <- gamlss(proportion ~ treatment + time_min + treatment:time_min, family = SHASH(), data = lorazepam, method = CG())
+summary(lo.mod)
 ```
 
 ```{r}
@@ -204,6 +200,7 @@ mBE <- histDist(DPH_chronic$proportion, "BE", density = T, main = "Beta")
 GAIC(mGA, mBE)
 
 chronic_mod <- glm(proportion ~ treatment + time_min + treatment:time_min, family = Gamma(link = "inverse"), data = DPH_chronic) 
+summary(chronic_mod)
 
 chronic.mod <- gamlss(proportion ~ treatment + time_min + treatment:time_min, family = GA(), data = DPH_chronic)
 

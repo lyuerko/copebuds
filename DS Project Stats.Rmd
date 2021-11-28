@@ -19,15 +19,14 @@ library(tidyverse)
 ```
 
 ```{r}
-lorazepam = read_csv(here("./Data/DS copepod data - Lorazepam acute.csv")) %>%
-    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
-
 DPH_acute = read_csv(here("./Data/DS copepod data - DPH acute_right one.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
 
 DPH_chronic = read_csv(here("./Data/DS copepod data - DPH chronic.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
 ```
+
+
 
 ```{r}
 lorazepam_treatment.mod <- lm(proportion ~ treatment, data = lorazepam)

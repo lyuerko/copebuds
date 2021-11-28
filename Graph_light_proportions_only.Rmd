@@ -21,17 +21,21 @@ library(gamlss)
 library(tidyverse)
 library(here)
 library(dplyr)
+library(MASS)
+library(patchwork)
 ```
 # loading the cvs files
 
+Backup
 ```{r}
-lorazepam = read_csv(here("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/Lorazepam acute.csv")) %>%
-    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
-DPH_acute = read_csv(here("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/DPH acute.csv")) %>%
+lorazepam = read_csv(here("./Data/DS copepod data - Lorazepam acute.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
 
-DPH_chronic <- read_delim("E:/Lyubava_UVic/Term 4 (Bamfield)/DS/GitHub/DPH chronic.csv", delim = ',') %>%
-    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 
+DPH_acute = read_csv(here("./Data/DS copepod data - DPH acute_right one.csv")) %>%
+    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
+
+DPH_chronic = read_csv(here("./Data/DS copepod data - DPH chronic.csv")) %>%
+    mutate(percentile = as.factor(percentile), time_min = as.factor(time_min))
 ```
       _______________________________
 # DPH acute graphs
@@ -44,14 +48,17 @@ DPH_acute_0_50 <- DPH_acute %>%
   summarize(proportion_light = sum(proportion))
 ```
 ```{r}
-ggplot(DPH_acute_0_50, aes(x = time_min,
+p1 = ggplot(DPH_acute_0_50, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment)) +
-  geom_boxplot() +
-  geom_smooth() +
+                           fill = treatment)) +
+  geom_boxplot(alpha = 0.8) +
+  labs(x = "Treatment", y = "Proportion of copepods") +
+  ggtitle("A. DPH acute exposure for covered top") +
   theme_classic()+
-  xlab ("time(min)") +
-  ylab ("copepod proportion")
+  labs(fill = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
+
+plot(p1)
 ```
 
 
@@ -67,14 +74,17 @@ DPH_acute_50_100 <- DPH_acute %>%
 
 
 ```{r}
-ggplot(DPH_acute_50_100, aes(x = time_min,
+p2 = ggplot(DPH_acute_50_100, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment)) +
-  geom_boxplot() +
-  geom_smooth() +
+                           fill = treatment)) +
+  geom_boxplot(alpha = 0.8) +
+  labs(x = "Treatment", y = "Proportion of copepods") +
+  ggtitle("B. DPH acute exposure for covered bottom") +
   theme_classic()+
-  xlab ("time(min)") +
-  ylab ("copepod proportion")
+  labs(fill = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
+
+plot(p2)
 ```
 ____________________________________________________________________________________
 
@@ -101,14 +111,17 @@ DPH_chronic_0_50 <- DPH_acute %>%
 
 
 ```{r}
-ggplot(DPH_chronic_0_50, aes(x = time_min,
+p3 = ggplot(DPH_chronic_0_50, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment)) +
-  geom_boxplot() +
-  geom_smooth() +
+                           fill = treatment)) +
+  geom_boxplot(alpha = 0.8) +
+  labs(x = "Treatment", y = "Proportion of copepods") +
+  ggtitle("C. DPH chronic exposure for covered top") +
   theme_classic()+
-  xlab ("time(min)") +
-  ylab ("copepod proportion")
+  labs(fill = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
+
+plot(p3)
 ```
 
 ## 50-100 proportion
@@ -122,15 +135,17 @@ DPH_chronic_50_100 <- DPH_chronic %>%
 
 
 ```{r}
-ggplot(DPH_chronic_50_100, aes(x = time_min,
+p4 = ggplot(DPH_chronic_50_100, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment)) +
-  scale_colour_manual(values = c('#440154FF', '#4AC16DFF', '#FEBA80FF')) +
-  geom_boxplot() +
-  geom_smooth() +
+                           fill = treatment)) +
+  geom_boxplot(alpha = 0.8) +
+  labs(x = "Treatment", y = "Proportion of copepods") +
+  ggtitle("D. DPH chronic exposure for covered bottom") +
   theme_classic()+
-  xlab ("time(min)") +
-  ylab ("copepod proportion")
+  labs(fill = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
+
+plot(p4)
 ```
       ______________________
 
@@ -148,14 +163,17 @@ lorazepam_acute_0_50 <- lorazepam %>%
 
 
 ```{r}
-ggplot(lorazepam_acute_0_50, aes(x = time_min,
+p5 = ggplot(lorazepam_acute_0_50, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment)) +
-  geom_boxplot() +
-  geom_smooth() +
+                           fill = treatment)) +
+  geom_boxplot(alpha = 0.8) +
+  labs(x = "Treatment", y = "Proportion of copepods") +
+  ggtitle("A. Lorazepam acute exposure for covered top") +
   theme_classic()+
-  xlab ("time(min)") +
-  ylab ("copepod proportion")
+  labs(fill = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
+
+plot(p5)
 ```
 ## 50-100 proportion
 
@@ -169,16 +187,27 @@ lorazepam_acute_50_100 <- lorazepam %>%
 
 
 ```{r}
-ggplot(lorazepam_acute_50_100, aes(x = time_min,
+p6 = ggplot(lorazepam_acute_50_100, aes(x = time_min,
                            y = proportion_light,
-                           colour = treatment)) +
-  geom_boxplot() +
-  geom_smooth() +
+                           fill = treatment)) +
+  geom_boxplot(alpha = 0.8) +
+  labs(x = "Treatment", y = "Proportion of copepods") +
+  ggtitle("B. Lorazepam acute exposure for covered bottom") +
   theme_classic()+
-  xlab ("time(min)") +
-  ylab ("copepod proportion")
+  labs(fill = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
+
+plot(p6)
 ```
 
+```{r}
+(p1 / p3) | (p2/p4)
+
+```
+```{r}
+p5 | p6
+
+```
 
 
 

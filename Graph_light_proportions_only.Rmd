@@ -53,6 +53,7 @@ p1 = ggplot(DPH_acute_0_50, aes(x = time_min,
                            fill = treatment)) +
   geom_boxplot(alpha = 0.8) +
   labs(x = "Treatment", y = "Proportion of copepods") +
+  ylim(0, 0.8) +
   ggtitle("A. DPH acute exposure for covered top") +
   theme_classic()+
   labs(fill = "Treatment") +
@@ -79,6 +80,7 @@ p2 = ggplot(DPH_acute_50_100, aes(x = time_min,
                            fill = treatment)) +
   geom_boxplot(alpha = 0.8) +
   labs(x = "Treatment", y = "Proportion of copepods") +
+  ylim(0, 0.8) +
   ggtitle("B. DPH acute exposure for covered bottom") +
   theme_classic()+
   labs(fill = "Treatment") +
@@ -116,6 +118,7 @@ p3 = ggplot(DPH_chronic_0_50, aes(x = time_min,
                            fill = treatment)) +
   geom_boxplot(alpha = 0.8) +
   labs(x = "Treatment", y = "Proportion of copepods") +
+  ylim(0, 0.8) +
   ggtitle("C. DPH chronic exposure for covered top") +
   theme_classic()+
   labs(fill = "Treatment") +
@@ -140,6 +143,7 @@ p4 = ggplot(DPH_chronic_50_100, aes(x = time_min,
                            fill = treatment)) +
   geom_boxplot(alpha = 0.8) +
   labs(x = "Treatment", y = "Proportion of copepods") +
+  ylim(0, 0.8) +
   ggtitle("D. DPH chronic exposure for covered bottom") +
   theme_classic()+
   labs(fill = "Treatment") +
@@ -168,6 +172,7 @@ p5 = ggplot(lorazepam_acute_0_50, aes(x = time_min,
                            fill = treatment)) +
   geom_boxplot(alpha = 0.8) +
   labs(x = "Treatment", y = "Proportion of copepods") +
+  ylim(0, 0.8) +
   ggtitle("A. Lorazepam acute exposure for covered top") +
   theme_classic()+
   labs(fill = "Treatment") +
@@ -192,6 +197,7 @@ p6 = ggplot(lorazepam_acute_50_100, aes(x = time_min,
                            fill = treatment)) +
   geom_boxplot(alpha = 0.8) +
   labs(x = "Treatment", y = "Proportion of copepods") +
+  ylim(0, 0.8) +
   ggtitle("B. Lorazepam acute exposure for covered bottom") +
   theme_classic()+
   labs(fill = "Treatment") +

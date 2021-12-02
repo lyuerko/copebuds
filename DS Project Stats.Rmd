@@ -78,6 +78,7 @@ ggplot(DPH_chronic, aes(x = time_min, y = proportion, fill = treatment), xlab="T
   theme_classic() +
   labs(x = "Time (min)", y = "Proportion of copepods") +   
   labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
   scale_fill_discrete(name = "Treatment") +
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 
@@ -86,6 +87,7 @@ ggplot(DPH_acute, aes(x = time_min, y = proportion, fill = treatment), xlab="Tim
   theme_classic() +
   labs(x = "Time (min)", y = "Proportion of copepods") +  
   labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
   scale_fill_discrete(name = "Treatment") +
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 
@@ -103,6 +105,7 @@ ggplot(lorazepam, aes(x = time_min, y = proportion, fill = treatment), xlab="Tim
   theme_classic() +
   labs(x = "Time (min)", y = "Proportion of copepods") +  
   labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
   scale_fill_discrete(name = "Treatment") +
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 ```
@@ -239,7 +242,7 @@ acute_bottom.mod <- glm(proportion ~ treatment + time_min + treatment:time_min, 
 backward.acute_bottom <- stepAIC(acute_bottom.mod, direction = "backward", trace = F)
 
 formula(backward.acute_bottom) # get the final formula , proportion ~ treatment + time_min
-backward.acute_bottomy$anova 
+backward.acute_bottom$anova 
 summary(backward.acute_bottom) 
 ```
 

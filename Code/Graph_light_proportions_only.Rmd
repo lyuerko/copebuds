@@ -1,6 +1,6 @@
 ---
 title: "DPH data analysis"
-author: "Lyubava Erko"
+author: "Lyubava Erko and Carys Hughes"
 date: "10/11/2021"
 output: pdf_document
 ---
@@ -8,7 +8,6 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
 
 ```{r, message = FALSE, echo = FALSE, warning = FALSE}
 library(mgcv)
@@ -26,7 +25,6 @@ library(patchwork)
 ```
 # loading the cvs files
 
-Backup
 ```{r}
 lorazepam = read_csv(here("./Data/DS copepod data - Lorazepam acute.csv")) %>%
     mutate(percentile = as.factor(percentile), time_min = as.factor(time_min)) 

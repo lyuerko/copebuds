@@ -82,6 +82,24 @@ ggplot(DPH_chronic, aes(x = time_min, y = proportion, fill = treatment), xlab="T
   scale_fill_discrete(name = "Treatment") +
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 
+ggplot(DPH_chronic_top, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +   
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(DPH_chronic_bottom, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +   
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
 ggplot(DPH_acute, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
   geom_boxplot(alpha = 0.8) +
   theme_classic() +
@@ -90,6 +108,15 @@ ggplot(DPH_acute, aes(x = time_min, y = proportion, fill = treatment), xlab="Tim
   ylim(0, 0.8) +   
   scale_fill_discrete(name = "Treatment") +
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(DPH_acute_top, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  ylim(0, 0.4) +  
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
 
 ggplot(DPH_acute_bottom, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
   geom_boxplot(alpha = 0.8) +
@@ -108,7 +135,82 @@ ggplot(lorazepam, aes(x = time_min, y = proportion, fill = treatment), xlab="Tim
   ylim(0, 0.8) +   
   scale_fill_discrete(name = "Treatment") +
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(lorazepam_top, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(lorazepam_bottom, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
 ```
+
+```{r}
+ggplot(lorazepam_top, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(lorazepam_bottom, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(DPH_acute_top, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  ylim(0, 0.4) +  
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1"))
+
+ggplot(DPH_acute_bottom, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +  
+  labs(fill = "Treatment") +
+  ylim(0, 0.4) +  
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(DPH_chronic_top, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +   
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+
+ggplot(DPH_chronic_bottom, aes(x = time_min, y = proportion, fill = treatment), xlab="Time (min)", ylab="Proportion of copepods") + 
+  geom_boxplot(alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Time (min)", y = "Proportion of copepods") +   
+  labs(fill = "Treatment") +
+  ylim(0, 0.8) +   
+  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), values = c("skyblue1", "palegreen3", "firebrick1")) 
+```
+
 
 ```{r}
 shapiro.test(DPH_chronic$proportion) #p-value < 2.2e-16 (violates assumption)

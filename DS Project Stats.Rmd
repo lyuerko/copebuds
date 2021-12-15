@@ -67,7 +67,7 @@ p1 = ggplot(DPH_chronic_bottom, aes(x = time_min,
   labs(fill = "Treatment") +
   ylim(0, 0.8) +   
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), 
-                    values = c("skyblue1", "palegreen3", "firebrick1")) 
+                    values = c("lightcyan", "palegreen3", "red4")) 
 
 p2 = ggplot(DPH_chronic_top, aes(x = time_min, 
                                  y = proportion, 
@@ -80,7 +80,7 @@ p2 = ggplot(DPH_chronic_top, aes(x = time_min,
   labs(fill = "Treatment") +
   ylim(0, 0.8) +   
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), 
-                    values = c("skyblue1", "palegreen3", "firebrick1")) 
+                    values = c("lightcyan", "palegreen3", "red4")) 
 
 p3 = ggplot(DPH_acute_bottom, aes(x = time_min, 
                                   y = proportion, 
@@ -93,7 +93,7 @@ p3 = ggplot(DPH_acute_bottom, aes(x = time_min,
   labs(fill = "Treatment") +
   ylim(0, 0.4) +  
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), 
-                    values = c("skyblue1", "palegreen3", "firebrick1")) 
+                    values = c("lightcyan", "palegreen3", "red4")) 
 
 p4 = ggplot(DPH_acute_top, aes(x = time_min, 
                                y = proportion, 
@@ -106,7 +106,7 @@ p4 = ggplot(DPH_acute_top, aes(x = time_min,
   labs(fill = "Treatment") +
   ylim(0, 0.4) +  
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), 
-                    values = c("skyblue1", "palegreen3", "firebrick1"))
+                    values = c("lightcyan", "palegreen3", "red4"))
 
 p5 = ggplot(lorazepam_bottom, aes(x = time_min, 
                                   y = proportion, 
@@ -119,7 +119,7 @@ p5 = ggplot(lorazepam_bottom, aes(x = time_min,
   labs(fill = "Treatment") +
   ylim(0, 0.8) +   
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), 
-                    values = c("skyblue1", "palegreen3", "firebrick1")) 
+                    values = c("lightcyan", "palegreen3", "red4")) 
 
 p6 = ggplot(lorazepam_top, aes(x = time_min, 
                                y = proportion, 
@@ -132,7 +132,7 @@ p6 = ggplot(lorazepam_top, aes(x = time_min,
   labs(fill = "Treatment") +
   ylim(0, 0.8) +   
   scale_fill_manual(labels = c("Control", "Environmentally relevant", "High"), 
-                    values = c("skyblue1", "palegreen3", "firebrick1")) 
+                    values = c("lightcyan", "palegreen3", "red4")) 
 ```
 
 ```{r warning=FALSE}

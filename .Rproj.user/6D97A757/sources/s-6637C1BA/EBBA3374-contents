@@ -1,0 +1,382 @@
+---
+title: "T04_wildStats"
+author: "Sara JS Wuitchik"
+date: "10/14/2021"
+output: 
+  html_document:
+    df_print: kable
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Learning Objectives ** 
+
+1. Select appropriate stats for the data you have 
+2. Review stats you have probably already seen
+3. Implementing stats in R (WHAT who saw that coming)  
+
+A note before we begin: this is an **applied** data analysis course, so we will be focusing less on the _theory_ underlying the statistics (which is still important!) and more on the way we can: 
+
+1. choose appropriate statistical approaches for our data
+2. understand the assumptions, strengths, and limitations of these approaches
+3. apply these approaches to our data  
+  
+This means that while it is _important_ to understand, for instance, why a Weibull distribution is appropriate for zero-inflated data in a skewed distribution and the underlying extreme value theorem, we will not be diving into this level of foundational theory and background for each approach.  
+  
+Rather, I challenge you to have a broad understanding of statistical approaches and to be able to think critically when selecting an approach, but to also take the responsibility for investigating your particular approach for a given data set e.g., you should be able to justify why _you_ are using a statistical approach in your DS project, but are not expected to have the same deep knowledge that another team has for a different project. 
+
+### **Step 0 of every R session - set up your environment**
+```{r, message = F}
+# load your packages (make sure they're installed if this is the first time you've used them)
+library(FSA) 
+library(fGarch)
+library(LambertW)
+library(patchwork)
+library(tidyverse)
+
+# are you in the right working directory? 
+```
+
+```{r}
+# load your data - in practice, you would probably load one data set per script or Markdown and do your analyses on that one data set. Here, we are going to have a 'load data' code chunk, but realistically, we are going to work with lots of different types of data for examples in this topic, so we are going to load data as we need it. 
+data("mtcars")
+```
+
+```{r}
+data(mtcars)
+head(mtcars)
+```
+
+
+## **Stats you have likely seen & how to do them in R** 
+
+### **Checking Assumptions of Parametric Tests** 
+
+(Everything below assumes that your data are independent of each other - if they are not, then we need to explore a different approach)
+  
+#### Normality
+
+1. With stats: the Shapiro-Wilk test. This is a quick way to get a hard 'threshold' of whether your data fit a normal distribution. If p < 0.05, then the distribution of your data are significantly different from the normal distribution. 
+
+```{r}
+shapiro.test(mtcars$mpg)
+shapiro.test(mtcars$cyl)
+shapiro.test(mtcars$hp)
+shapiro.test(mtcars$wt)
+```
+
+Sidenote: this is a nifty trick (`data$variable`) to quickly grab one variable in a data frame without having to `select()` or `filter()` and save the variable to a new object every time 
+
+##### **Q:** Running each of the variables above, which follow the normal distribution? 
+mpg and wt does follow a normal distribution
+cyl and hp do not follow a normal distribution 
+
+2. a) With visualizations: QQ plots. Some statistical approaches are robust to deviations from normality and if the data aren't "too non-normal", it can be justified to use a parametric test. Visualizing the data can help with that decision. 
+
+```{r}
+# what does a QQ plot look like when the data fit the normal distribution? 
+qqnorm(mtcars$mpg) 
+qqline(mtcars$mpg)
+
+# and when it's not normal? 
+qqnorm(mtcars$cyl)
+qqline(mtcars$cyl)
+```
+
+2. b) With visualizations: histograms. Another way to visualize the distribution of your data is with a histogram. This is a simple one-liner for quick plotting, we'll get into more aesthetically pleasing and complex plotting with our next topic (T05: Data viz with ggplot2)
+
+```{r}
+hist(mtcars$mpg)
+
+hist(mtcars$cyl)
+```
+
+#### Homoscedasticity
+
+When testing normality of your data, we are testing if our data are significantly different in its distribution when compared to the normal distribution. The assumption of homoscedasticity is that the _variance_ between _two_ variables is approximately equal. For example, if we were interested in comparing the bill lengths of Adelie and Gentoo penguins, we would want to know if that variable had equal variances in the two species. 
+
+##### **Mini Challenge:** Using the penguins data, clean the data so that you have the bill length data for _only_ the Adelie and Gentoo species of penguins and save it to a new object.
+
+```{r}
+pens <- read_delim("penguins.csv", delim = ',')
+clean_pens <- pens %>% 
+  filter(species == 'Gentoo'| species == 'Adelie') %>% 
+  select(species, bill_length_mm) 
+# | This symbol means "or"
+```
+
+
+#-------------------------------------------------
+
+
+Now that we have our data tidied up to just the species and variable we're interested in, we can test if the variances are similar or not. 
+
+```{r}
+bartlett.test(bill_length_mm ~ species, data = clean_pens)
+```
+
+Like the Shapiro-Wilk test for normality, p < 0.05 means that the variances are not homoscedastic.  
+
+##### **Q:** Do these data have approximately equal variances? (Y/N)
+Yes, the P-value is grater than 0.05 meaning these two are relatively equal. 
+
+
+### **Violating Assumptions (& what to do about it)** 
+  
+If your data violate these assumptions, what can we do about it?  
+<a href="https://memeguy.com/photo/10445/autobots-roll-out"><img src="https://memeguy.com/photos/images/autobots-roll-out-10445.gif"  /></a>  
+  
+
+##### **Bonus Q:** knit this Rmd to an HTML, then tell me what that line of code above did.  
+  
+  
+Bad jokes aside, we can transform our data and re-test to see if the transformed data meet the assumptions. Let's rather than trying to deal with finding a bunch of different data sets with different skews and violations, let's first simulate some data under the distributions we want to look at.  
+
+```{r, warning = F}
+rightSkew <- data.frame(values = rsnorm(1000, mean = 0, sd = 1, xi = 10))
+leftSkew <- data.frame(values = rsnorm(1000, mean = 0, sd = 1, xi = -10))
+heavyTail <- data.frame(values = rLambertW(n = 1000, distname = "normal", beta = c(0, 3), delta = 0.2))
+lightTail <- data.frame(values = rLambertW(n = 1000, distname = "normal", beta = c(0, 2), delta = -0.2))
+```
+
+So let's look at our right skewed data first, as a density plot and the associated QQ plot 
+
+```{r}
+p1 <- ggplot(rightSkew, aes(x = values)) + 
+  geom_density() + 
+  theme_classic() + 
+  geom_vline(xintercept = 0, colour = "red")
+p2 <- ggplot(rightSkew, aes(sample = values)) + 
+  geom_qq() + 
+  theme_classic() + 
+  stat_qq_line()
+p1 + p2
+```
+
+What does a left skewed distribution and QQ plot look like? 
+
+```{r}
+p3 <- ggplot(leftSkew, aes(x = values)) + 
+  geom_density() + 
+  theme_classic() + 
+  geom_vline(xintercept = 0, colour = "red")
+p4 <- ggplot(leftSkew, aes(sample = values)) + 
+  geom_qq() + 
+  theme_classic() + 
+  stat_qq_line()
+p3 + p4
+```
+
+What about the data we made with heavy tails (leptokurtic) in the distribution? 
+
+```{r}
+p5 <- ggplot(heavyTail, aes(x = values)) + 
+  geom_density() + 
+  theme_classic() + 
+  geom_vline(xintercept = 0, colour = "red")
+p6 <- ggplot(heavyTail, aes(sample = values)) + 
+  geom_qq() + 
+  theme_classic() + 
+  stat_qq_line()
+p5 + p6
+```
+
+And light tails (platykurtic)? 
+
+```{r}
+p7 <- ggplot(lightTail, aes(x = values)) + 
+  geom_density() + 
+  theme_classic() + 
+  geom_vline(xintercept = 0, colour = "red")
+p8 <- ggplot(lightTail, aes(sample = values)) + 
+  geom_qq() + 
+  theme_classic() + 
+  stat_qq_line()
+p7 + p8
+```
+
+Okay, now that we know what the QQ plots associated with these different distributions look like, how can we transform that data to potentially fit a normal distribution?  
+
+
+1. Log transform: pretty common transform, but can't be used on negative numbers or 0, so data needs to be shifted (e.g., x + 1) or absolute (i.e., |x|). We'll use the absolute value of our data here (because you all know how to `mutate()` a new column that would be your data + 1, right?) 
+
+```{r}
+right_transform <- rightSkew %>%
+  mutate(logData = log(abs(values)))
+
+ggplot(right_transform, aes(x = logData)) + 
+  geom_density() + 
+  theme_classic() + 
+  geom_vline(xintercept = 0, colour = "red")
+```
+
+2. Square root transform: one of the weaker transforms, though gains power with increasing root.
+```{r}
+left_transform <- leftSkew %>%
+  mutate(rootData = sqrt(abs(values)))
+
+ggplot(left_transform, aes(x = rootData)) + 
+  geom_density() + 
+  theme_classic() + 
+  geom_vline(xintercept = 0, colour = "red")
+```
+
+##### **Mini Challenge:** 
+
+1. Do you think these transforms (both the log transform on the rightSkew data and the square root transform on the leftSkew data) sufficiently transformed the distribution of the data to meet the assumption of normality for a parametric test? (Y/N)
+
+No because there are still larger tails
+
+2. How would you test if the transforms worked (other than plotting your data)? Code it and record how you would interpret the results. 
+```{r}
+shapiro.test(right_transform$logData) #not normal (p-value < 2.2e-16)
+shapiro.test(left_transform$rootData) #not normal (p-value = 9.607e-09)
+```
+
+
+3. What happens if you log transform the leftSkew data and square root transform the rightSkew data? Do they fit the assumption of a normal distribution now? 
+
+```{r}
+left_transform_log <- leftSkew %>%
+  mutate(logData = log(abs(values)))
+shapiro.test(left_transform_log$logData)
+#not normal (p-value < 2.2e-16)
+
+right_transform_root <- rightSkew %>%
+  mutate(rootData = sqrt(abs(values)))
+shapiro.test(right_transform_root$rootData)
+#not normal (p-value = 2.083e-05) 
+```
+
+
+#-------------------------------------------------
+
+
+3. Automatic transform: in the package `LambertW`, there is an automatic transform for lepto- or platykurtic data.
+```{r}
+tail_transform <- Gaussianize(heavyTail)
+
+ggplot(tail_transform, aes(x = values.X)) + 
+  geom_density() + 
+  theme_classic() + 
+  geom_vline(xintercept = 0, colour = "red")
+```
+
+Did that transform do anything to help with the assumption of normality? 
+```{r}
+shapiro.test(tail_transform$values.X)
+#yes the p-value = 0.8525 meaning it is more normal.
+```
+
+4. Ignore the violations (if justified).
+
+But what is "justified"? The phrase you will hear a lot of, especially in ecology, is a 'large enough sample size', which is just as vague as saying ignoring violations of the parametric assumptions is fine as long as it's 'justified'. A number you will hear almost universally is "sample size of over 30 (per treatment)" but where that number truly came from (and how ubiquitously it can be applied) can be a little sketchy.  
+
+The assertion that a 'sufficiently large sample size' is enough to ignore the assumption of normality actually does have its roots in the central limit theorem but we don't need to dive into that. Realistically, to determine if your sample size is large enough to ignore the assumption of normality, you would want to run a simulation study using similar sample distribution characteristics and sub-sample to see at what sample size your distributions of means converges on a normal distribution. 
+
+But, let's be honest, that's a lot of work to just figure out if you can use a t-test or not. So for now, with some exceptions, we'll try to avoid ignoring violations. Before I stick my foot in my mouth, I will say that ANOVA is quite robust to deviations from normality, so that is usually my one exception to my 'don't ignore violations' preference. 
+
+
+### **Let's do those stats!** 
+
+From what we've seen so far, it looks like most people will be working with numerical data or a mix of numerical and categorical data. 
+
+Let's start with when we have a mix of numerical and categorical data. First, we need a data set that fills these conditions. 
+
+Here, we have the body lengths of two species of sculpin (small intertidal fishes). 
+
+```{r}
+sculpin_ttest <- read_delim("sculpin_ttest.csv", delim = ',')
+```
+
+
+```{r}
+bartlett.test(length_mm ~ species, data = sculpin_ttest)
+```
+
+##### **Q:** Can we use a parametric t-test based on the homogeneity of variances test above? 
+The P-value is 0.254 (greater than 0.05) meaning the variances are approximately equal. We would use a parametric test because of this. 
+
+
+What if we wanted to know if these species were significantly different lengths than each other? 
+```{r}
+t.test(length_mm ~ species, data = sculpin_ttest, alternative = "two.sided", var.equal = T, conf.level = 0.95)
+#there is not a significant difference between the body lengths of these two species (P-value is 0.6366)
+```
+
+But what if we had more than two species that we wanted to compare the means of? That's where an analysis of variance (ANOVA) comes in. An ANOVA is essentially the same as a number of t-tests between all your treatment levels (in this case, species) that automatically corrects for the error associated with multiple testing***. 
+
+```{r}
+sculpin_aov <- read_delim("sculpin_aov.csv", delim = ',')
+aov <- aov(length_mm ~ species, data = sculpin_aov)
+```
+
+What does this tell us? Not a lot, really. There is some useful information, but from an applied perspective, what we really want is the answer to 'are these groups different or not?', and 'how are the groups different from each other?'. Those answers come from the `summary()` function and Tukey's Honest Significant Differences (Tukey's HSD).
+
+```{r}
+summary(aov)
+```
+
+```{r}
+TukeyHSD(aov)
+#tidepool-fluffy was again not significant while the otherones were.
+```
+
+If we want a quick visualization of these differences, we can use the `plot()` function. 
+```{r}
+plot(TukeyHSD(aov))
+```
+
+
+### **Let's do the ... non-parametric stats? **
+
+We touched on how to run a statistics when your data doesn't violate the assumptions of parametric tests, but what if we had a data set that violated our assumptions for parametric tests? That's where non-parametric tests come in - they tend to lose a little bit of power based on the lack of assumptions, but are still totally valid statistical approaches. Because they are not making assumptions about the variance and distribution underlying the data, they are more flexible and more robust to violations.
+
+Let's read in some non-parametric data and check for normality. 
+```{r}
+nonpara_ttest <- read_delim("nonpara_stickle_ttest.csv", delim = ',')
+
+shapiro.test(nonpara_ttest$ctmin) #data is significantly different than data set (P-value= 0)
+bartlett.test(ctmin ~ habitat, data = nonpara_ttest) #variances are equal
+```
+
+##### **Q:** Can we still use a parametric test when we have an assumption that is violated? 
+No. but you would need to add a var.equal = F and do a Welch's test
+
+So if we have data that don't fulfill our normality assumption, how could we do a t-test on this?  
+
+```{r}
+t.test(ctmin ~ habitat, data = nonpara_ttest, alternative = "two.sided", var.equal = F, conf.level = 0.95)
+```
+
+##### **Q:** How does this t-test function differ from the parametric t-test? 
+For this t-test we added var.equal = F to specify that variances are not equal.(even though they were equal, the distribution was different so this is telling it to use a non-parametric test)
+
+What if we had more than one grouping, like in this data set? 
+```{r}
+nonpara_aov <- read_delim("nonpara_stickle_aov.csv", delim = ',')
+
+shapiro.test(nonpara_aov$ctmin) #not normal
+bartlett.test(ctmin ~ habitat, data = nonpara_aov) #variances are not equal
+
+kruskal.test(ctmin ~ habitat, data = nonpara_aov) # p-value = p-value = 9e-04
+dunnTest(ctmin ~ habitat, data = nonpara_aov) # p-value less than 0.5 for freshwater and hybrid
+```
+
+
+Fun twist: you can also `group_by()` when testing assumptions of normality for multiple groups when you use a different package.
+```{r}
+#install.packages("rstatix")
+library(rstatix)
+nonpara_aov %>%
+  group_by(habitat) %>%
+  shapiro_test(ctmin)
+```

@@ -1,0 +1,305 @@
+---
+title: "Tips & Tricks"
+author: "Sara JS Wuitchik"
+date: "11/2/2021"
+output: 
+  html_document:
+    df_print: kable
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, tidy.opts = list(width.cutoff = 80))
+```
+
+## Tips & Tricks in R from Sandra & Jenna
+
+So that we all have the same data set to try these functions out with, I simulated a data set for use throughout this tips and tricks script. 
+```{r, message = F}
+library(tidyverse)
+data <- read_delim("data.csv", delim= ',')
+```
+
+*** 
+
+### Data wrangling - a review of verbs
+
+Here's a list of all the data wrangling verbs we covered in T02_intro2tidyverse with a short summary of what they do. For detailed usage and arguments, refer back to the T02 notes
+
+* `select()` will subset columns using their names and types (i.e., how to choose columns to keep or get rid of)
+* `filter()` will subset rows using column values (i.e., keep observations that fulfill a set of criteria)
+* `arrange()` will order rows by the value(s) of specified columns 
+* `rename()` will change the names of individual columns
+* `distinct()` will select only the unique observations for a column
+* `mutate()` will create new columns or change existing columns
+* `separate()` will separate a character column into multiple columns following a regular expression or based on numeric locations
+* `group_by()` will group your data based on one or more variables for subsequent operations
+* `summarize()` will create a new data frame based on the grouping variables and the summary function you have specified
+* `pivot_wider()` will restructure your data from long to wide format (less rows, more columns)
+* `pivot_longer()` will restructure your data from wide to long format (more rows, less columns)
+
+***
+
+### Plotting & data visualization
+
+```{r, message = F}
+library(scales)
+library(viridis)
+```
+
+
+Think about creating a plot the same way you would draw it if you were using a pen and paper. We say this a lot, but there is no single "correct" way to create a plot or the "right" way to add functions. The order of operations will only matter if you are relying on a function in your ggplot to be used by a later function, in which case you need to make sure your plot is processing the prerequisite function first. 
+
+I like to go in this order: 
+    + ggplot with x and y axes defined
+    + geom_ for your data, whether that's a histogram, or box plot, or scatter plot, ..
+    + theme_ for the plot, could be classic, or black and white, or dark, or ...
+    + labs() to set the labels for the axes
+    + theme() if you want to change how the legend is positioned, or the size of the text on the axes, etc. 
+
+Here's an example of doing that set of steps with our simulated data set:
+```{r}
+ggplot(data, aes(x = pop, y = lower, fill = pop)) + 
+  geom_boxplot() + 
+  theme_classic() + 
+  labs(x = "Population", y = "Lower") + 
+  theme(legend.position = "none") # gets rid of the legend 
+```
+
+We could do the exact same plot for the second variable, `upper`: 
+```{r}
+ggplot(data, aes(x = pop, y = upper, fill = pop)) + 
+  geom_boxplot() + 
+  theme_classic() + 
+  labs(x = "Population", y = "Upper") + 
+  theme(legend.position = "none") # gets rid of the legend 
+```
+
+But what if we wanted to compare these on the same plot? We could use `patchwork` to paste the plots together, but we'd still have a break in our y-axis. 
+
+Here's an annotated example of how to build a box plot of both variables for both populations, overlay the box plots with jittered data points, and calculate the mean of each variable for each population. 
+
+```{r, warning = F}
+# look at some colours
+show_col(viridis_pal(option = "D")(12))
+
+ggplot(data, aes(x = pop, y = lower)) + # set up your global options: what are your axes, what's going on the x, what's going on the y? Add in the fill or colour options here, if you want to. 
+  geom_boxplot(colour = "gray40") + # what type of plot do you want to make? If you want the outline of your geom to be something other than black, put that colour choice here
+  geom_jitter(size = 2, alpha = 0.40, width = 0.1, mapping = aes(colour = lower)) + # add data points to overlay the boxplot, but also jitter them so they don't cluster together. Size is the size of the point, alpha is the transparency of the point, and width is how much they are jittered from each other - these are all parameters specific to the points, so they are specified here, rather than in the global options in the first `ggplot` function
+  stat_summary(fun = mean, shape = "circle", colour = "darkgreen", size = 0.75) + # calculate a summary statistic (in this case, mean) and put a filled circle that is 0.75 pts in size at that calculated mean for the `lower` variable
+  geom_boxplot(data, colour = "gray40", mapping = aes(y = upper, fill = NULL)) + # if you want to add in box plots of a second variable in your data set, you can add it in as a separate geom!
+  geom_jitter(data, size = 2, alpha = 0.40, width = 0.1, mapping = aes(y = upper, colour = upper)) + # same parameters for the points as before but you want to make sure that this line is specifically plotting the `upper` variable. To override the global option of `y = lower`
+  stat_summary(fun = mean, shape = "circle", size = 0.75, colour = "darkgreen", mapping = aes(y = upper)) + # calculate the mean value for the `upper` variable 
+  theme_classic() + # set theme to classic
+  theme(legend.position = "none", axis.text = element_text(size = 14), axis.title = element_text(size = 16)) + # get rid of legend, increase axis text size to 14 and increase the axis label size to 16
+  labs(y = "Limits", x = "") # set y axis label to 'Limits' and leave x axis label blank
+```
+
+#### Common geoms in ggplot2
+
+One continuous variable 
+
+* geom_density()
+* geom_histogram()
+
+One discrete variable
+
+* geom_bar()
+
+Two continuous variables
+
+* geom_jitter()
+* geom_point()
+* geom_smooth()
+
+Two variables, one continuous, one discrete
+
+* geom_col()
+* geom_boxplot()
+* geom_dotplot()
+* geom_violin()
+
+***
+
+### Distribution fitting & statistical modelling 
+
+```{r, message = F}
+library(gamlss)
+library(fitdistrplus)
+```
+
+#### Review of stats 
+
+There is a bit of a hierarchical approach to how we advance in our statistics selection. The tests we've covered so far are t-tests and ANOVA (parametric and nonparametric), linear models (lm), generalized linear models (glm), generalized additive models (gam), and generalized additive models for location, scale, and shape (gamlss).  
+
+The entire motivation behind statistical models is understanding how much variance in your response variable is explained by a number of variables associated with your experiment. In the same way that a t-test compares means between two groups, ANOVA compares the means between more than two groups. However, ANOVA actually compares the variance between groups and extrapolates to comparisons of means. ANOVA is a special case of a linear model, in the sense that ANOVA can only handle categorical explanatory variables (e.g., differences between discrete groups). Linear models are more flexible than ANOVA because you can mix categorical and continuous explanatory variables in your model formula. For our intents and purposes, without going into the weeds of the math and parameters that underpin each model, we can think about them like this:
+
+* a t-test is `response ~ group` for only two groups 
+* an ANOVA is `response ~ group + randomEffect` for more than two groups with categorical variables
+  + there are many types of ANOVA, like repeated measures, or random effects, etc. 
+* a linear model is `response ~ explanatoryVar + explanatoryVar + randomEffect` for any mix of categorical and continuous variables
+    + a linear model assumes a normal distribution of the response variable
+* a generalized linear model is `response ~ explanatoryVar + explanatoryVar + randomEffect` for any mix of categorical and continuous variables
+    + glm supports binomial, normal, Gamma, inverse normal, Poisson, quasi, quasibinomial, and quasipoisson distributions of the response variable
+* a generalized additive model is `response ~ explanatoryVar + explanatoryVar + randomEffect` for any mix of categorical and continuous variables
+    + gam supports ordered categorical, Tweedie, negative binomial, beta, heavy-tailed skew, zero inflated Poisson, Cox proportional hazards, gammaLS, normalLS, GEVLS, Gumbel LS, Sinh-arcsinh LS, two-stage zero inflated Poisson, multivariate normal additive, and multinormal logistic regression for the response variable
+* a generalized additive model for location, scale, and shape is `response ~ explanatoryVar + explanatoryVar + randomEffect` for any mix of categorical and continuous variables
+    + gamlss supports all the distributions listed [here](https://www.rdocumentation.org/packages/gamlss.dist/versions/5.3-2/topics/gamlss.family)
+
+*_Don't forget_* that if you're data don't meet the assumption of normality, it's just as feasible to use the nonparametric version of ANOVA, a.k.a. Kruskal-Wallis, and its Tukey's HSD post-hoc comparisons test, the Dunn test (these are all covered in T04)
+
+*** 
+
+#### Steps to follow for modelling
+
+For modelling, there are a couple of steps to take: 
+
+1. Make sure your variables are all the correct class (e.g., characters vs factors)
+
+2. Check your response variable of interest for normality
+  i) if your response variable does not fulfill the assumption of normality, determine the most appropriate distribution 
+  
+3. Depending on the distribution of your response variable, decide which modelling approach to take
+
+##### Using `fitDist()` for automatic distribution selection
+```{r, eval = F}
+fitDist(responseVariable, data = dataframe, type = "charString", try.gamlss = T)
+```
+
+`fitDist()`, when coded this way, will run through a whole bunch of distributions at once for you and give you the best fit automatically. This essentially replaces all the distribution fitting we were doing manually before. The arguments are:  
+
+* responseVariable, whichever variable you are wanting to fit a distribution to (e.g., growth, number of snails, proportion of jelly polyps, mean Fv/Fm, number of plastics, etc.)
+* data = dataframe, whatever you’ve called the data you loaded into R
+* type = “charString”, you replace charString with any of the following:
+    + realAll - this argument will test all the gamlss continuous distributions defined on the real line i.e., realline and realplus (see below)
+    + realline - this argument will test all the gamlss continuous distributions of “NO”, “GU”, “RG” ,“LO”, “NET”, “TF”, “TF2”, “PE”,“PE2”, “SN1", “SN2”, “exGAUS”, “SHASH”, “SHASHo”,“SHASHo2”, “EGB2", “JSU”, “JSUo”, “SEP1”, “SEP2", “SEP3”, “SEP4", “ST1”, “ST2", “ST3”, “ST4", “ST5”, “SST”, “GT”
+    + realplus - this argument will test all the gamlss continuous distributions in the positive real line of “EXP”, “GA”,“IG”,“LOGNO”, “LOGNO2",“WEI”, “WEI2", “WEI3”, “IGAMMA”,“PARETO2”, “PARETO2o”, “GP”, “BCCG”, “BCCGo”, “exGAUS”, “GG”, “GIG”, “LNO”,“BCTo”, “BCT”, “BCPEo”, “BCPE”, “GB2"
+    + real0to1 - this argument will test all the gamlss continuous distributions for values from 0 to 1 of “BE”, “BEo”, “BEINF0”, “BEINF1", “BEOI”, “BEZI”, “BEINF”, “GB1"
+counts - this argument will test all the gamlss distributions for counts of “PO”, “GEOM”, “GEOMo”,“LG”, “YULE”, “ZIPF”, “WARING”, “GPO”, “DPO”, “BNB”, “NBF”,“NBI”, “NBII”, “PIG”, “ZIP”,“ZIP2", “ZAP”, “ZALG”, “DEL”, “ZAZIPF”, “SI”, “SICHEL”,“ZANBI”, “ZAPIG”, “ZINBI”, “ZIPIG”, “ZINBF”, “ZABNB”, “ZASICHEL”, “ZINBF”, “ZIBNB”, “ZISICHEL”
+    + binom - this argument will test all the gamlss distributions for binomial data of “BI”, “BB”, “DB”, “ZIBI”, “ZIBB”, “ZABI”, “ZABB”
+* try.gamlss = T just tells the fitDist function to try a second fitting method if the first one doesn’t work 
+
+
+An example of this for proportional data would look something like this:
+```{r, eval = F}
+fitDist(prop_variable, data = data, type = "real0to1", try.gamlss = T)
+```
+
+*** 
+
+##### An example walk through
+
+Here's an example of doing that set of steps with our simulated data set:
+
+1. Make sure variables are the correct class
+
+```{r}
+clean <- data %>%
+  mutate(pop = as.factor(pop),
+         sex = as.factor(sex))
+```
+
+2. Check for normality
+```{r}
+shapiro.test(clean$lower) # p-value = 0.04831
+```
+
+Juuuuuust slightly off from normal. Let's see what other distributions may be a good fit (but we'll fit normal too for comparison)
+```{r}
+descdist(clean$lower) # close to normal, but beta doesn't make sense here (because beta requires values to be between 0 and 1)
+```
+
+```{r, results = F, warning = F}
+fitDist(lower, data = clean, type = "realAll", try.gamlss = T) # SEP1
+```
+
+Fit the histDist models to determine the AIC comparisons - remember that AIC values within 2 points of each other are essentially equal
+```{r, fig.show = 'hide'}
+mSEP1 <- histDist(clean$lower, "SEP1", density = T, main = "Skew exp type I")
+mNO <- histDist(clean$lower, "NO", density = T, main = "Normal")
+```
+```{r}
+GAIC(mSEP1, mNO) #SEP1 for the win!
+```
+
+3. Since we have SEP1 as the most appropriate distribution for our data, we will use a GAMLSS modelling approach.  
+  
+Every modelling approach is `response ~ explanatory1 + explanatory2 + ...` and there are a few ways to approach the explanatory variables.
+
+* `v1 + v2 + v3` considers the impact of v1 and v2 on the variance of the response variable in isolation
+* `v1:v2:v3` considers the interaction between v1, v2, and v3 together
+* `v1*v2*v3` considers the interaction between v1, v2, and v3 together, as well as every combination of interactions these variables could create: 
+    + `v1` in isolation
+    + `v2` in isolation
+    + `v3` in isolation
+    + `v1:v2` interaction
+    + `v1:v3` interaction
+    + `v2:v3` interaction
+    + `v1:v2:v3` interaction
+
+```{r, results = F}
+mod <- gamlss(lower ~ upper + mass*sex, family = SEP1(), data = clean, control = gamlss.control(n.cyc = 200))
+```
+
+Now that your model has run properly, summarize it to check the significant terms
+```{r}
+summary(mod)
+```
+
+
+*** 
+
+##### Review of distribution fitting & modeling functions
+
+* LM: `lm()`  
+* GML: `glm()`  
+* GAM: `gam()`  
+* GAMLSS: `gamlss()`  
+  
+Check possible distributions:   
+
+* `descdist(data$response)`, and/or
+* use `goft` package tests, and/or
+* use `fitDist()`
+
+Model structure:
+* `model <- response ~ var1 + var2 + var3 + var1*var2*var3 + random(rand1)`, or
+* use `(1 | rand1)` for random effects in other (non-GAMLSS) models
+
+Comparing models:
+* `model$aic`, or
+* `GAIC(mod1, mod1)` if the models are the same format e.g., mod1 and mod2 are both GLMs
+
+Model selection:
+*`stepGAIC()` with either "forwards" or "backwards" direction 
+
+***
+
+## Additional resources
+
+These are links from collaborators & responses on Twitter to a call for resources for learning R - hope they are useful! 
+
+* R/RStudio cheat sheets [here](https://www.rstudio.com/resources/cheatsheets/)
+* Basic intro to R tutorial [here](https://njsilbiger.github.io/GettingStarted/)
+* A second intro to RStudio [here](https://ourcodingclub.github.io/tutorials/intro-to-r/)
+* A really thorough video intro to R [here](https://rstudio.com/resources/webinars/a-gentle-introduction-to-tidy-statistics-in-r/)
+* More R tutorials [here](https://njsilbiger.github.io/)
+* A user friendly resource [here](http://www.cookbook-r.com/)
+* Basics of ggplot [here](http://www.cookbook-r.com/graphs)
+* Figure geometry with Patchwork [here](https://github.com/thomasp85/patchwork)
+* Information on t-tests [here](https://statistics.berkeley.edu/computing/r-t-tests)
+* More advanced info on t-tests [here](http://www.sthda.com/english/wiki/unpaired-two-samples-t-test-in-r)
+* Information on one-way ANOVA [here](http://www.sthda.com/english/wiki/one-way-anova-test-in-r)
+* More advanced ANOVA [here](https://www.datanovia.com/en/lessons/anova-in-r/)
+* Linear model theory and assumptions [here](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/)
+* Linear models intro [here](https://ourcodingclub.github.io/tutorials/modelling/)
+* Mixed effects models [here](https://ourcodingclub.github.io/tutorials/mixed-models/)
+* A Scientist's Guide to R [here](https://craig.rbind.io/post/2019-05-17-asgr-basic-workflow/)
+* R tricks [here](https://github.com/crazyhottommy/getting-started-with-genomics-tools-and-resources/blob/master/R_tricks.md)
+* R inferno [here](https://github.com/crazyhottommy/getting-started-with-genomics-tools-and-resources/blob/master/R_inferno.pdf)
+
